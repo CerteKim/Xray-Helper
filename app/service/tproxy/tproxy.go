@@ -1,13 +1,19 @@
 package tproxy
 
 type ITProxy interface {
-	addRoute() error
-	delRoute() error
-	enableProxy() error
-	disableProxy() error
+	AddRoute() error
+	DelRoute() error
+	EnableProxy() error
+	DisableProxy() error
 }
 
 var Tproxy = makeITProxy()
+
+type IProxy interface {
+	ApplyProxy()
+}
+
+var Proxy = makeIProxy()
 
 const (
 	tableId   int = 100
