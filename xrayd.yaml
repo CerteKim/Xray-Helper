@@ -1,0 +1,3 @@
+port: 10080
+xray:
+  confdir: /usr/local/etc/xray/

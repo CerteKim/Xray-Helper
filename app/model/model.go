@@ -1,17 +1,17 @@
-package middle
+package model
 
 import (
 	"log"
 
-	"github.com/certekim/xray-helper/app/config"
 	scribble "github.com/nanobox-io/golang-scribble"
+	"github.com/spf13/viper"
 )
 
 var JsonDB *scribble.Driver
 
 func init() {
 	var err error
-	path := config.Conf["data"].(string)
+	path := viper.GetString("xray.confdir")
 	JsonDB, err = scribble.New(path, nil)
 	if err != nil {
 		log.Println("storage pool :")
