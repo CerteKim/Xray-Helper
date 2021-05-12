@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func LoadConfig() {
+func InitConfig() {
 	log.Println("Current platform: ", runtime.GOOS)
 	viper.SetConfigName("xrayd")
 	viper.SetConfigType("yaml")

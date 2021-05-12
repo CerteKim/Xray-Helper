@@ -1,0 +1,2 @@
+# xrayd
+An xray daemon

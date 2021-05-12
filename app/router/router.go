@@ -3,16 +3,17 @@ package router
 import (
 	"fmt"
 	"net/http"
+	_ "net/http/pprof"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/spf13/viper"
 )
 
-var Router = httprouter.New()
+var router = httprouter.New()
 
-func Start() {
+func NewRouter() *httprouter.Router {
 
-	Router.GlobalOPTIONS = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	router.GlobalOPTIONS = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Access-Control-Request-Method") != "" {
 			// Set CORS headers
 			header := w.Header()
@@ -24,14 +25,16 @@ func Start() {
 	})
 
 	if viper.GetBool("xrayd.pprof") {
-		Router.Handler(http.MethodGet, "/debug/pprof/*item", http.DefaultServeMux)
+		router.Handler(http.MethodGet, "/debug/pprof/*item", http.DefaultServeMux)
 	}
 
 	if static := viper.GetString("xrayd.static"); static != "" {
-		Router.NotFound = http.FileServer(http.Dir(static))
+		router.NotFound = http.FileServer(http.Dir(static))
 	} else {
-		Router.GET("/", DefaultHandler)
+		router.GET("/", DefaultHandler)
 	}
+
+	return router
 }
 
 func DefaultHandler(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

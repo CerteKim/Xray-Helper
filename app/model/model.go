@@ -9,14 +9,14 @@ import (
 
 var JsonDB *scribble.Driver
 
-func init() {
+func InitDB() {
 	var err error
 	path := viper.GetString("xray.confdir")
 	JsonDB, err = scribble.New(path, nil)
 	if err != nil {
-		log.Println("storage pool :")
-		log.Println("	Error : ", err)
+		log.Println("storage pool:")
+		log.Println("	Error: ", err)
 	} else {
-		log.Println("storage pool connected : " + path)
+		log.Println("storage pool connected: " + path)
 	}
 }

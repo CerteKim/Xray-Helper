@@ -1,15 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
-	_ "xrayd/common/config"
-
-	"xrayd/main/cmd"
-
-	"github.com/takama/daemon"
+	_ "xrayd/app/service"
 )
 
 const (
@@ -17,19 +12,19 @@ const (
 	description = "An xray daemon"
 )
 
-var dependencies = []string{"dummy.service"}
+var stdlog, errlog *log.Logger
 
 func main() {
-	srv, err := daemon.New(name, description, daemon.SystemDaemon, dependencies...)
+	srv := new(XrayD)
+	status, err := srv.Cmd()
 	if err != nil {
-		log.Fatal("Error: ", err)
+		errlog.Println(status, "\nError: ", err)
 		os.Exit(1)
 	}
-	service := &cmd.Service{srv}
-	status, err := service.Manage()
-	if err != nil {
-		log.Fatal(status, "\nError: ", err)
-		os.Exit(1)
-	}
-	fmt.Println(status)
+	stdlog.Println(status)
+}
+
+func init() {
+	stdlog = log.New(os.Stdout, "", log.Ldate|log.Ltime)
+	errlog = log.New(os.Stderr, "", log.Ldate|log.Ltime)
 }

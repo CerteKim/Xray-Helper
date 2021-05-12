@@ -1,6 +1,8 @@
 xrayd:
   port: 10080
-  static: /data/xray/app/
+  static: /data/xray/doc/
+  pprof: true
 xray:
+  path: /usr/local/bin/xray
   asset: /usr/local/share/xray/
   confdir: /usr/local/etc/xray/
