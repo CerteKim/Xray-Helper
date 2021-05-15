@@ -5,6 +5,8 @@ import (
 	"os"
 
 	_ "xrayd/app/service"
+
+	"github.com/takama/daemon"
 )
 
 const (
@@ -15,8 +17,13 @@ const (
 var stdlog, errlog *log.Logger
 
 func main() {
-	srv := new(XrayD)
-	status, err := srv.Cmd()
+	srv, err := daemon.New(name, description, daemon.SystemDaemon)
+	if err != nil {
+		errlog.Println("Error: ", err)
+		os.Exit(1)
+	}
+	service := &XrayD{srv}
+	status, err := service.Cmd()
 	if err != nil {
 		errlog.Println(status, "\nError: ", err)
 		os.Exit(1)
