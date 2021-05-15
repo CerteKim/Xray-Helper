@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,8 +13,6 @@ import (
 
 	"github.com/spf13/viper"
 	"github.com/takama/daemon"
-	"golang.org/x/net/http2"
-	"golang.org/x/net/http2/h2c"
 )
 
 type XrayD struct {
@@ -38,11 +37,7 @@ func (X XrayD) Cmd() (string, error) {
 		case "status":
 			return X.Status()
 		case "run":
-			initX()
-			h2s := &http2.Server{}
-			if err := http.ListenAndServe(":"+viper.GetString("xrayd.port"), h2c.NewHandler(router.NewRouter(), h2s)); err != nil {
-				return fmt.Sprintln(err), nil
-			}
+			return X.Run()
 		default:
 			return name + "\n" + description + "\n" + usage, nil
 		}
@@ -51,19 +46,29 @@ func (X XrayD) Cmd() (string, error) {
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 
-	for {
-		select {
-		case killSignal := <-interrupt:
-			stdlog.Println("Stopped")
-			if killSignal == os.Interrupt {
-				return "Daemon was interruped by system signal", nil
-			}
-			return "Daemon was killed", nil
-		}
+	go func() {
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt)
+		<-c
+		log.Println("Exit")
+		os.Exit(1)
+	}()
+
+	ret, err := X.Run()
+	if err != nil {
+		return "Error starting xrayd", err
+	} else {
+		return ret, err
 	}
 }
 
 func initX() {
 	config.InitConfig()
 	model.InitDB()
+}
+
+func (X XrayD) Run() (string, error) {
+	initX()
+	err := http.ListenAndServe(":"+viper.GetString("xrayd.port"), router.NewRouter())
+	return fmt.Sprintln(err), nil
 }
