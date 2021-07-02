@@ -18,7 +18,7 @@ func InitConfig() {
 	case "android":
 		viper.AddConfigPath("/data/adb/xray/")
 	default:
-		viper.AddConfigPath("$HOME/.xrayd")
+		viper.AddConfigPath("$HOME/.xrayd/")
 	}
 	viper.AddConfigPath(".")
 	err := viper.ReadInConfig()

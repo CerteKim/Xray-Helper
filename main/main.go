@@ -4,7 +4,9 @@ import (
 	"log"
 	"os"
 
+	"xrayd/app/model"
 	_ "xrayd/app/service"
+	"xrayd/common/config"
 
 	"github.com/takama/daemon"
 )
@@ -34,4 +36,6 @@ func main() {
 func init() {
 	stdlog = log.New(os.Stdout, "", log.Ldate|log.Ltime)
 	errlog = log.New(os.Stderr, "", log.Ldate|log.Ltime)
+	config.InitConfig()
+	model.InitDB()
 }
