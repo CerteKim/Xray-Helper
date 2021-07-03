@@ -1,12 +1,8 @@
 package main
 
 import (
-	"log"
 	"os"
-
-	"xrayd/app/model"
-	_ "xrayd/app/service"
-	"xrayd/common/config"
+	"xrayd/common/log"
 
 	"github.com/takama/daemon"
 )
@@ -16,26 +12,18 @@ const (
 	description = "An xray daemon"
 )
 
-var stdlog, errlog *log.Logger
-
 func main() {
 	srv, err := daemon.New(name, description, daemon.SystemDaemon)
 	if err != nil {
-		errlog.Println("Error: ", err)
+		log.Errlog.Println("Error: ", err)
 		os.Exit(1)
 	}
+	srv.SetTemplate(template())
 	service := &XrayD{srv}
 	status, err := service.Cmd()
 	if err != nil {
-		errlog.Println(status, "\nError: ", err)
+		log.Errlog.Println(status, "\nError: ", err)
 		os.Exit(1)
 	}
-	stdlog.Println(status)
-}
-
-func init() {
-	stdlog = log.New(os.Stdout, "", log.Ldate|log.Ltime)
-	errlog = log.New(os.Stderr, "", log.Ldate|log.Ltime)
-	config.InitConfig()
-	model.InitDB()
+	log.Stdlog.Println(status)
 }

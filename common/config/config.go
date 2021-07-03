@@ -14,6 +14,7 @@ func InitConfig() {
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath(os.Getenv("XRAYD_CONFIG_DIR"))
 	viper.AddConfigPath("/etc/xrayd/")
+	viper.AddConfigPath("/usr/local/etc/xrayd/")
 	switch runtime.GOOS {
 	case "android":
 		viper.AddConfigPath("/data/adb/xray/")

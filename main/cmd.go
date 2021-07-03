@@ -4,7 +4,10 @@ import (
 	"net"
 	"os"
 	"syscall"
+	"xrayd/app/model"
 	"xrayd/app/router"
+	"xrayd/common/config"
+	"xrayd/common/log"
 
 	"github.com/valyala/fasthttp"
 
@@ -18,8 +21,8 @@ type XrayD struct {
 	daemon.Daemon
 }
 
-func (X XrayD) Cmd() (string, error) {
-	usage := "Usage: xrayd install | remove | start | stop | status"
+func (X *XrayD) Cmd() (string, error) {
+	usage := "Usage: xrayd install | remove | start | stop | status | run"
 
 	// if received any kind of command, do it
 	if len(os.Args) > 1 {
@@ -40,6 +43,8 @@ func (X XrayD) Cmd() (string, error) {
 		}
 	}
 
+	initXrayD()
+
 	// Do something, call your goroutines, etc
 
 	// Set up channel on which to send signal notifications.
@@ -53,7 +58,7 @@ func (X XrayD) Cmd() (string, error) {
 	if err != nil {
 		return "Possibly was a problem with the port binding", err
 	} else {
-		stdlog.Println("Listening on ", listener.Addr())
+		log.Stdlog.Println("Listening on ", listener.Addr())
 	}
 
 	// set up channel on which to send accepted connections
@@ -67,8 +72,8 @@ func (X XrayD) Cmd() (string, error) {
 		case conn := <-listen:
 			go handleClient(conn)
 		case killSignal := <-interrupt:
-			stdlog.Println("Got signal:", killSignal)
-			stdlog.Println("Stoping listening on ", listener.Addr())
+			log.Stdlog.Println("Got signal:", killSignal)
+			log.Stdlog.Println("Stoping listening on ", listener.Addr())
 			listener.Close()
 			if killSignal == os.Interrupt {
 				return "Daemon was interrupted by system signal", nil
@@ -89,9 +94,12 @@ func acceptConnection(listener net.Listener, listen chan<- net.Conn) {
 }
 
 func handleClient(client net.Conn) {
-	if err := fasthttp.ServeConn(client, func(ctx *fasthttp.RequestCtx) {
-		router.Router(ctx)
-	}); err != nil {
-		os.Exit(1)
+	if err := fasthttp.ServeConn(client, router.Router(&fasthttp.RequestCtx{}).Handler); err != nil {
+		log.Errlog.Println(err)
 	}
+}
+
+func initXrayD() {
+	config.InitConfig()
+	model.InitDB()
 }

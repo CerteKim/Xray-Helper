@@ -2,21 +2,20 @@ package router
 
 import (
 	"fmt"
+	"xrayd/app/service/xray"
 
+	"github.com/fasthttp/router"
 	"github.com/valyala/fasthttp"
 )
 
-func versionHandler(ctx *fasthttp.RequestCtx) {
-	ctx.SetContentType("application/json")
-	ctx.SetStatusCode(fasthttp.StatusOK)
-	fmt.Fprintf(ctx, "xrayd version 0.0.1")
+func Router(ctx *fasthttp.RequestCtx) *router.Router {
+	r := router.New()
+	r.GET("/version", versionHandler)
+	r.GET("/api/v1/start", xray.StartHandler)
+	r.GET("/api/v1/stop", xray.StopHandler)
+	return r
 }
 
-func Router(ctx *fasthttp.RequestCtx) {
-	switch string(ctx.Path()) {
-	case "/version":
-		versionHandler(ctx)
-	default:
-		ctx.Error("Unsupported path", fasthttp.StatusNotFound)
-	}
+func versionHandler(ctx *fasthttp.RequestCtx) {
+	fmt.Fprintf(ctx, "xrayd version 0.0.1")
 }
