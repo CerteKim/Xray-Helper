@@ -18,6 +18,7 @@ func (X *XrayD) Start() {
 	listener, err := net.Listen("tcp", ":"+viper.GetString("xrayd.port"))
 	if err != nil {
 		log.Errlog.Println("Possibly was a problem with the port binding", err)
+		return
 	} else {
 		log.Stdlog.Println("Listening on ", listener.Addr())
 	}
