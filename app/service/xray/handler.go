@@ -7,11 +7,9 @@ import (
 )
 
 func StartHandler(ctx *fasthttp.RequestCtx) {
-	ret := Start()
-	fmt.Fprintf(ctx, ret+"\n")
+	fmt.Fprintf(ctx, Start()+"\n")
 }
 
 func StopHandler(ctx *fasthttp.RequestCtx) {
-	ret := fmt.Sprintln(Stop())
-	fmt.Fprintf(ctx, ret+"\n")
+	fmt.Fprintf(ctx, fmt.Sprintln(Stop())+"\n")
 }
